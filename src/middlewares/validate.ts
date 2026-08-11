@@ -12,7 +12,11 @@ export const validate = (schema: ZodTypeAny) => {
 
       // Inject parsed values back
       req.body = parsed.body;
-      req.query = parsed.query;
+
+      // req.query is getter-only in Express 5 — mutate in place instead of reassigning
+      Object.keys(req.query).forEach((key) => delete (req.query as any)[key]);
+      Object.assign(req.query, parsed.query);
+
       req.params = parsed.params;
 
       next();
